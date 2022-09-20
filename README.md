@@ -2,12 +2,12 @@
  
 Updated fork of [https://gitlab.com/spoatacus/sonarr-episode-trimmer](https://gitlab.com/spoatacus/sonarr-episode-trimmer/-/tree/master)
 
-# Changes
+## Changes
 
 - Docker Support
 - Migrate to the new /episode/monitor endpoint
 
-# Running with Docker
+## Running with Docker
 
 - Rename *settings.config.example* to *settings.config* and update necessary details
 - From the same folder as your config, build the Docker image: `docker build -t jonfairbanks/sonarr-episode-trimmer .`
