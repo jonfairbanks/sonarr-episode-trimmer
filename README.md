@@ -1,0 +1,2 @@
+# sonarr-episode-trimmer
+ 

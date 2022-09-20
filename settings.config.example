@@ -1,0 +1,8 @@
+[API]
+url = http://1.2.3.4:5678
+key = abcd1234
+
+[Series]
+showone = 1
+showtwo = 2
+showthree = 3
