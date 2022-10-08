@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from operator import itemgetter
+from flask import (Flask, request)
 import urllib
 import requests
 import json
@@ -24,15 +25,28 @@ file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(messa
 logging.getLogger().addHandler(file_handler)
 
 
+app = Flask('MyService')
+
 # make a request to the sonarr api
 def api_request(action, params=None, method='GET', body=None):
     if params is None:
         params = {}
+    if CONFIG.has_option('API', 'key'):
+        params['apikey'] = CONFIG.get('API', 'key')
+    else:
+        params['apikey'] = os.getenv("API_KEY")
 
-    params['apikey'] = CONFIG.get('API', 'key')
-
-    url_base = CONFIG.get('API', 'url_base') if CONFIG.has_option('API', 'url_base') else ''
-    url = "%s%s/api/%s" % (CONFIG.get('API', 'url'), url_base, action)
+    if CONFIG.has_option('API', 'url_base'):
+        url_base = CONFIG.get('API', 'url_base')
+    elif os.getenv("URL_BASE") is not None:
+        url_base = os.getenv("URL_BASE") 
+    else:
+        url_base=""
+    
+    if CONFIG.has_option('API','url'):
+        url = "%s%s/api/%s" % (CONFIG.get('API', 'url')), url_base, action
+    else:
+        url = "%s%s/api/%s" % (os.getenv("URL"), url_base, action)
 
     if body is None:
       r = requests.request(method, url, **{"params": params})
@@ -99,6 +113,29 @@ def clean_series(series_id, keep_episodes):
         # mark the episode as unmonitored
         unmonitor_episode(episode)
 
+@app.route('/webhook', methods = ['POST'])
+def webhook():
+    content = request.json
+    if (content["eventType"] != "Test"):
+        series = api_request('series')
+        cleanup_series = []
+        # build mapping of titles to series
+        series = {x['cleanTitle']: x for x in series}
+        for s in CONFIG.items('Series'):
+            if s[0] in series:
+                cleanup_series.append((series[s[0]]['id'], int(s[1]), series[s[0]]['title']))
+            else:
+                logging.warning("series '%s' from config not found in sonarr", s[0])
+        for s in cleanup_series:
+            logging.info("Processing: %s", s[2])
+            logging.debug("%s: %s", s[0], s[1])
+            clean_series(s[0], s[1])
+
+@app.route('/webhook/<int:episodes>', methods = ['POST'])
+def webhook_episode(episodes):
+    content = request.json
+    if (content["eventType"] != "Test"):
+        clean_series(content["series"]["id"],episodes)
 
 if __name__ == '__main__':
     global CONFIG
@@ -108,7 +145,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action='store_true', help='Run the script in debug mode. No modifications to '
                                                              'the sonarr library or filesystem will be made.')
-    parser.add_argument("--config", type=str, required=True, help='Path to the configuration file.')
+    parser.add_argument("--config", type=str, required=False, help='Path to the configuration file.')
     parser.add_argument("--list-series", action='store_true', help="Get a list of shows with their 'cleanTitle' for use"
                                                                    " in the configuration file")
     parser.add_argument("--custom-script", action='store_true', help="Run in 'Custom Script' mode. This mode is meant "
@@ -116,15 +153,21 @@ if __name__ == '__main__':
                                                                      "Script'. It will run anytime a new episode is "
                                                                      "downloaded, but will only cleanup the series of "
                                                                      "the downloaded episode.")
+    parser.add_argument("--web", action='store_true', help="Starts in webmode, where you can set it up as a webhook connector"
+                                                                    "in Sonnar and get it invoked from its trigger operations")
     args = parser.parse_args()
 
     DEBUG = args.debug
     if DEBUG:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    if args.web:
+        app.run(host='0.0.0.0', threaded=True, port=5000)
+
     # load config file
     CONFIG = ConfigParser.SafeConfigParser()
-    CONFIG.read(args.config)
+    if args.config is not None:
+        CONFIG.read(args.config)
 
     # get all the series in the library
     series = api_request('series')
