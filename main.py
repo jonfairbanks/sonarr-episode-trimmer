@@ -163,14 +163,14 @@ if __name__ == '__main__':
     if DEBUG:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    if args.web:
-        app.run(host='0.0.0.0', threaded=True, port=5000)
-
     # load config file
     CONFIG = ConfigParser.SafeConfigParser()
     if args.config is not None:
         CONFIG.read(args.config)
 
+    if args.web:
+        app.run(host='0.0.0.0', threaded=True, port=5000)
+        
     # get all the series in the library
     series = api_request('series')
 
