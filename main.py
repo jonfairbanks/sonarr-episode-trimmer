@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from operator import itemgetter
-from flask import (Flask, request)
+from flask import (Flask, request,jsonify)
 import urllib
 import requests
 import json
@@ -130,12 +130,14 @@ def webhook():
             logging.info("Processing: %s", s[2])
             logging.debug("%s: %s", s[0], s[1])
             clean_series(s[0], s[1])
+    return jsonify(success=True)
 
 @app.route('/webhook/<int:episodes>', methods = ['POST'])
 def webhook_episode(episodes):
     content = request.json
     if (content["eventType"] != "Test"):
         clean_series(content["series"]["id"],episodes)
+    return jsonify(success=True)
 
 if __name__ == '__main__':
     global CONFIG
