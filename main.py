@@ -116,7 +116,7 @@ def clean_series(series_id, keep_episodes):
 @app.route('/webhook', methods = ['POST'])
 def webhook():
     content = request.json
-    if (content["eventType"] != "Test"):
+    if (content["eventType"] != "Test" and content["eventType"] != "EpisodeFileDelete"):
         series = api_request('series')
         cleanup_series = []
         # build mapping of titles to series
@@ -135,7 +135,7 @@ def webhook():
 @app.route('/webhook/<int:episodes>', methods = ['POST'])
 def webhook_episode(episodes):
     content = request.json
-    if (content["eventType"] != "Test"):
+    if (content["eventType"] != "Test" and content["eventType"] != "EpisodeFileDelete"):
         clean_series(content["series"]["id"],episodes)
     return jsonify(success=True)
 
@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
     if args.web:
         app.run(host='0.0.0.0', threaded=True, port=5000)
-        
+
     # get all the series in the library
     series = api_request('series')
 
