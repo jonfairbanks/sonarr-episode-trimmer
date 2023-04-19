@@ -16,4 +16,4 @@ RUN pip install --user requests
 
 COPY --chown=python:python . .
 
-CMD ["python", "-u", "main.py", "--config", "settings.config"]
+CMD ["python", "-u", "index.py", "--config", "settings.config"]

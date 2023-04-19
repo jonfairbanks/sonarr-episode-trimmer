@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 from operator import itemgetter
 import urllib
 import requests
@@ -53,7 +54,7 @@ def unmonitor_episode(episode):
 
     if not DEBUG:
         body = { "episodeIds": [episode_id], "monitored": False }
-        api_request('/v3/episode/monitor', method='PUT', body=json.dumps(body))
+        api_request('v3/episode/monitor', method='PUT', body=json.dumps(body))
 
 # remove old episodes from a series
 def clean_series(series_id, keep_episodes):
