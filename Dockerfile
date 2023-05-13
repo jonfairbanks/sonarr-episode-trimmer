@@ -1,7 +1,5 @@
 FROM python:3.9-alpine
 
-RUN pip install --upgrade pip
-
 RUN adduser -D python
 RUN mkdir /home/python/app/ && chown -R python:python /home/python/app
 WORKDIR /home/python/app
