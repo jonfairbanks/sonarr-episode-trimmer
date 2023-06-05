@@ -29,9 +29,7 @@ file_handler = logging.handlers.TimedRotatingFileHandler(
 file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)-8s %(message)s"))
 logging.getLogger().addHandler(file_handler)
 
-
-app = Flask("MyService")
-
+app = Flask("Sonarr-Episode-Trimmer")
 
 # make a request to the sonarr api
 def api_request(action, params=None, method="GET", body=None):
@@ -49,19 +47,33 @@ def api_request(action, params=None, method="GET", body=None):
     else:
         url_base = ""
 
-    if CONFIG.has_option("API", "url"):
-        url = "%s%s/api/%s" % (CONFIG.get("API", "url"), url_base, action)
+    if CONFIG.has_option("API", "api_version"):
+        api_version = CONFIG.get("API", "api_version")
+    elif os.getenv("API_VERSION") is not None:
+        api_version = os.getenv("API_VERSION")
     else:
-        url = "%s%s/api/%s" % (os.getenv("URL"), url_base, action)
+        api_version = ""
+
+    if CONFIG.has_option("API", "url"):
+        url = "%s%s/api/%s/%s" % (CONFIG.get("API", "url"), url_base, api_version, action)
+    else:
+        url = "%s%s/api/%s/%s" % (os.getenv("URL"), url_base, api_version, action)
+
+    headers = { 'Content-Type': 'application/json' }
+
+    print(url)
 
     if body is None:
         r = requests.request(method, url, params=params)
     else:
-        r = requests.request(method, url, params=params, data=body)
+        r = requests.request(method, url, params=params, headers=headers, data=body)
 
     if r.status_code < 200 or r.status_code > 299:
         logging.error("%s %s", r.status_code, r.reason)
         logging.error(r.text)
+
+    if not r.content:
+        return {}
 
     return r.json()
 
@@ -79,7 +91,7 @@ def unmonitor_episode(episode):
 
     if not DEBUG:
         body = {"episodeIds": [episode_id], "monitored": False}
-        api_request("/v3/episode/monitor", method="PUT", body=json.dumps(body))
+        api_request("episode/monitor", method="PUT", body=json.dumps(body))
 
 
 # remove old episodes from a series

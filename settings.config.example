@@ -1,6 +1,7 @@
 [API]
-url = http://1.2.3.4:5678
+url = http://1.2.3.4:8989
 key = abcd1234
+api_version = v3
 
 [Series]
 showone = 1
