@@ -31,6 +31,7 @@ logging.getLogger().addHandler(file_handler)
 
 app = Flask("Sonarr-Episode-Trimmer")
 
+
 # make a request to the sonarr api
 def api_request(action, params=None, method="GET", body=None):
     if params is None:
