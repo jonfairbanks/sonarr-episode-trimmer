@@ -52,7 +52,7 @@ def api_request(action, params=None, method="GET", body=None):
     elif os.getenv("API_VERSION") is not None:
         api_version = os.getenv("API_VERSION")
     else:
-        api_version = ""
+        api_version = "v3"
 
     if CONFIG.has_option("API", "url"):
         url = "%s%s/api/%s/%s" % (CONFIG.get("API", "url"), url_base, api_version, action)
