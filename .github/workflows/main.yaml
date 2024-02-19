@@ -55,7 +55,7 @@ jobs:
 
   release:
     name: Publish Docker Image
-    needs: [black-lint, bump-tag]
+    needs: [bump-tag]
     runs-on: ubuntu-latest
     outputs:
       tags: ${{ steps.docker-tags.outputs.tags }}
