@@ -1,4 +1,4 @@
-FROM python:3.9-alpine
+FROM python:3.11-alpine
 
 RUN adduser -D python
 RUN mkdir /home/python/app/ && chown -R python:python /home/python/app
