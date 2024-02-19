@@ -55,11 +55,16 @@ def api_request(action, params=None, method="GET", body=None):
         api_version = "v3"
 
     if CONFIG.has_option("API", "url"):
-        url = "%s%s/api/%s/%s" % (CONFIG.get("API", "url"), url_base, api_version, action)
+        url = "%s%s/api/%s/%s" % (
+            CONFIG.get("API", "url"),
+            url_base,
+            api_version,
+            action,
+        )
     else:
         url = "%s%s/api/%s/%s" % (os.getenv("URL"), url_base, api_version, action)
 
-    headers = { 'Content-Type': 'application/json' }
+    headers = {"Content-Type": "application/json"}
 
     print(url)
 
