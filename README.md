@@ -48,7 +48,7 @@ To run the image in webhook mode:
   docker run -d --name=sonarr-trimmer -p 5000:5000 jonfairbanks/sonarr-episode-trimmer --web
   ```
   
-- The web endpoint will be available at `http://localhost:5000/webhoook` (replace "localhost" with your IP or DNS name if needed).
+- The web endpoint will be available at `http://localhost:5000/webhook` (replace "localhost" with your IP or DNS name if needed).
   
 - Configure a Sonarr webhook to trigger the clean-up process:
   
@@ -66,7 +66,7 @@ To run the image in webhook mode:
   
   - Select this tag for your Sonarr webhook connection.
   
-  - To specify the number of episodes to keep, add it to the path of the webhook URL, e.g. `http://<your-ip>:5000/webhoook/1` will keep only 1 episode (i.e., the last one).
+  - To specify the number of episodes to keep, add it to the path of the webhook URL, e.g. `http://<your-ip>:5000/webhook/1` will keep only 1 episode (i.e., the last one).
   
   - Note that this webhook option will execute clean-up for the triggering series with the given number, so don't use it without tags unless you want all of your series cleaned.
   
